@@ -94,16 +94,24 @@ function calculatePositions() {
     let realTimeData = [];
 
     planetsCatalog.forEach(p => {
+        // La librería requiere capitalización exacta (ej. 'Sun', 'Moon')
         const astroName = p.name.charAt(0) + p.name.slice(1).toLowerCase();
         
         try {
-            const eclipticInfo = Astronomy.Ecliptic(astroName, appState.targetDate);
-            const longitude = eclipticInfo.elon;
-            const trueConstellation = getTrueIauConstellation(longitude);
+            // FIX PASO 1: Generar el vector físico 3D geocéntrico
+            // (El 'true' final activa la corrección de aberración de luz)
+            const vec = Astronomy.GeoVector(astroName, appState.targetDate, true);
             
+            // FIX PASO 2: Convertir el vector 3D a coordenadas Esféricas Eclípticas
+            const ecl = Astronomy.Ecliptic(vec);
+            
+            // Extraer la longitud (usamos fallback por variaciones en la CDN)
+            const longitude = ecl.lon !== undefined ? ecl.lon : ecl.elon;
+            
+            const trueConstellation = getTrueIauConstellation(longitude);
             let localDegree = (longitude % 30).toFixed(1); 
             
-            // UX LÓGICA: Añadir marcador de aproximación [~] si falta la hora en planetas rápidos
+            // UX LÓGICA: Añadir marcador de aproximación [~] si falta la hora
             let displayDegree = `${localDegree}°`;
             if (appState.isApproximate && fastPlanets.includes(p.name)) {
                 displayDegree = `~${localDegree}°`; 
@@ -115,7 +123,8 @@ function calculatePositions() {
                 degree: displayDegree 
             });
         } catch (error) {
-            console.error(`Error calculando ${p.name}:`, error);
+            // Si el motor falla, lo imprimimos en la consola F12 para debuggear
+            console.error(`SYSTEM ERROR [${p.name}]:`, error);
         }
     });
 
