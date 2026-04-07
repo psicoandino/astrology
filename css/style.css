@@ -1,18 +1,15 @@
 :root {
-    /* 1. Elementos */
-    --c-fuego: #FF3333;
-    --c-tierra: #33FF33;
-    --c-agua: #33CCFF;
-    --c-aire: #FFFF33;
-    --c-ophiuchus: #AAAAAA;
+    --c-fuego: #FF4444;
+    --c-tierra: #44FF44;
+    --c-agua: #44CCFF;
+    --c-aire: #FFFF44;
+    --c-ophiuchus: #CCCCCC;
 
-    /* 2. Planetas */
-    --c-personal: #FF8C00;
-    --c-transpersonal: #B026FF;
+    --c-personal: #FFAA00;
+    --c-transpersonal: #D255FF;
 
-    /* 3. UI y Estructura */
     --ui-bg: #050505;
-    --ui-border: #222222;
+    --ui-border: #333333;
     --ui-text: #FFFFFF;
     --ui-accent: #00FFCC; 
     --terminal-green: #39ff14;
@@ -26,6 +23,8 @@
 body {
     background-color: var(--ui-bg);
     color: var(--ui-text);
+    /* UI/UX ACCESIBILIDAD: Aumento de fuente base para mejor lectura */
+    font-size: 16px; 
     font-family: var(--font-code);
     height: 100vh;
     display: flex;
@@ -33,160 +32,162 @@ body {
     overflow: hidden;
 }
 
-/* SYSTEM BAR / AUTHENTICATION */
 .system-bar {
     display: flex;
     justify-content: space-between;
     background: #111;
     color: var(--ui-text);
-    padding: 8px 20px;
-    font-size: 0.8rem;
-    border-bottom: 1px solid var(--ui-border);
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border-bottom: 2px solid var(--ui-border);
 }
 
 .auth-controls button {
     background: transparent;
     color: var(--ui-text);
     border: 1px solid var(--ui-border);
-    padding: 2px 10px;
+    padding: 5px 15px;
     font-family: var(--font-code);
+    font-size: 0.9rem;
     cursor: pointer;
     margin-left: 10px;
+    transition: 0.2s;
 }
 
-.auth-controls button:hover { background: var(--ui-accent); color: #000; border-color: var(--ui-accent); }
+.auth-controls button:hover { background: var(--ui-border); }
+.auth-controls button.btn-highlight { border-color: var(--ui-accent); color: var(--ui-accent); }
+.auth-controls button.btn-highlight:hover { background: var(--ui-accent); color: #000; }
 
-/* HEADER & CONTROLS */
 header {
-    padding: 15px 20px;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--ui-border);
+    border-bottom: 2px solid var(--ui-border);
     background: #000;
 }
 
 h1 {
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: 1.8rem; /* Más grande */
     color: var(--ui-text);
     letter-spacing: 2px;
 }
 
-.controls { display: flex; gap: 15px; align-items: center; }
-
-input[type="date"] {
-    background: transparent;
-    color: var(--ui-accent);
-    border: 1px solid var(--ui-accent);
-    padding: 5px 10px;
-    font-family: var(--font-code);
-    outline: none;
-    cursor: pointer;
+.subtitle {
+    color: var(--terminal-green);
+    font-size: 1rem;
+    margin-top: 5px;
 }
-::-webkit-calendar-picker-indicator { filter: invert(1) sepia(1) saturate(5) hue-rotate(120deg); }
 
 button.ui-btn {
-    background: transparent;
-    color: var(--ui-accent);
-    border: 1px solid var(--ui-accent);
-    padding: 6px 15px;
+    background: var(--ui-accent);
+    color: #000;
+    border: none;
+    padding: 12px 20px;
     font-family: var(--font-code);
+    font-weight: bold;
+    font-size: 1rem;
     cursor: pointer;
     text-transform: uppercase;
-    display: none; /* GHOST MODE DEFAULT */
+    display: none; /* GHOST DEFAULT */
 }
 
-button.ui-btn:hover { background: var(--ui-accent); color: var(--ui-bg); }
-
-/* GRID CONTENT (HEADERS + 12 + 1) */
+/* DASHBOARD GRID */
 #dashboard-zone {
     flex-grow: 1;
     padding: 20px;
     display: grid;
     grid-template-columns: repeat(4, 1fr); 
     grid-template-rows: auto repeat(3, 1fr) auto;
-    gap: 10px;
+    gap: 15px; /* Mayor respiro */
     background-image: radial-gradient(circle at center, #111 0%, #050505 100%);
+    overflow-y: auto;
 }
 
-/* MASTER ELEMENT HEADERS */
 .master-header {
     font-family: var(--font-display);
-    font-size: 0.75rem;
+    font-size: 1rem;
     text-align: center;
-    padding: 10px 5px;
+    padding: 12px 5px;
     border: 1px solid var(--ui-border);
     background: rgba(0,0,0,0.8);
-    letter-spacing: 1px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
-.master-header .stats {
-    font-family: var(--font-code);
-    font-size: 0.65rem;
-    margin-top: 5px;
-    opacity: 0.8;
-}
+.master-header .stats { font-family: var(--font-code); font-size: 0.8rem; margin-top: 5px; opacity: 0.8; }
 
 .constellation-card {
     border: 1px solid var(--ui-border);
-    background: rgba(0,0,0,0.5);
-    padding: 10px;
+    background: rgba(0,0,0,0.6);
+    padding: 15px; /* Más padding para legibilidad */
     display: flex;
     flex-direction: column;
 }
 
-/* OPHIUCHUS SPAN */
-.constellation-card.ophiuchus-span {
-    grid-column: 1 / -1; 
-    border-top: 2px dashed var(--c-ophiuchus);
-}
-
-.ophiuchus-span .planet-list {
-    flex-direction: row; 
-    flex-wrap: wrap;
-    gap: 15px;
-}
+.constellation-card.ophiuchus-span { grid-column: 1 / -1; border-top: 2px dashed var(--c-ophiuchus); }
+.ophiuchus-span .planet-list { flex-direction: row; flex-wrap: wrap; gap: 20px; }
 
 .c-header {
     font-family: var(--font-display);
-    font-size: 0.8rem;
+    font-size: 1rem;
     text-transform: uppercase;
     border-bottom: 1px dashed var(--ui-border);
-    padding-bottom: 5px;
-    margin-bottom: 5px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
 }
 
-/* COLOR ASSIGNMENTS */
 .fuego { color: var(--c-fuego); border-color: var(--c-fuego); }
 .fuego .c-header { color: var(--c-fuego); border-bottom-color: var(--c-fuego); }
-
 .tierra { color: var(--c-tierra); border-color: var(--c-tierra); }
 .tierra .c-header { color: var(--c-tierra); border-bottom-color: var(--c-tierra); }
-
 .agua { color: var(--c-agua); border-color: var(--c-agua); }
 .agua .c-header { color: var(--c-agua); border-bottom-color: var(--c-agua); }
-
 .aire { color: var(--c-aire); border-color: var(--c-aire); }
 .aire .c-header { color: var(--c-aire); border-bottom-color: var(--c-aire); }
-
 .ophiuchus { color: var(--c-ophiuchus); }
 .ophiuchus .c-header { color: var(--c-ophiuchus); border-bottom-color: var(--c-ophiuchus); }
 
-.planet-list {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    overflow-y: auto;
-}
-
-.planet-item { font-size: 0.75rem; display: flex; align-items: center; gap: 5px; color: var(--ui-text); }
+.planet-list { flex-grow: 1; display: flex; flex-direction: column; gap: 6px; }
+.planet-item { font-size: 0.9rem; display: flex; align-items: center; gap: 8px; color: var(--ui-text); font-weight: bold; }
 .planet-item.personal { color: var(--c-personal); }
 .planet-item.transpersonal { color: var(--c-transpersonal); }
-.empty-slot { color: #444; font-size: 0.7rem; font-style: italic; }
+.empty-slot { color: #555; font-size: 0.85rem; font-style: italic; }
+
+/* MODAL UI (ACCESIBILIDAD) */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.9);
+    display: none; /* Oculto por defecto */
+    justify-content: center; align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #111;
+    border: 2px solid var(--ui-accent);
+    padding: 40px;
+    width: 90%; max-width: 500px;
+    box-shadow: 10px 10px 0px rgba(0,255,204,0.2);
+}
+
+.modal-content h2 { font-family: var(--font-display); color: var(--ui-accent); margin-bottom: 10px; }
+.modal-content p { color: #aaa; margin-bottom: 25px; }
+
+.input-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+.input-group label { font-size: 0.9rem; color: var(--ui-text); margin-bottom: 5px; }
+.input-group input {
+    background: #000; color: #fff; border: 1px solid #555;
+    padding: 12px; font-family: var(--font-code); font-size: 1rem;
+    outline: none;
+}
+.input-group input:focus { border-color: var(--ui-accent); }
+.input-group small { color: #888; font-size: 0.75rem; margin-top: 5px; }
+
+.modal-actions { display: flex; justify-content: space-between; margin-top: 30px; }
+.modal-actions button { padding: 12px 20px; font-family: var(--font-code); font-weight: bold; font-size: 1rem; cursor: pointer; }
+.btn-cancel { background: transparent; color: #fff; border: 1px solid #555; }
+.btn-cancel:hover { background: #333; }
+.btn-submit { background: var(--ui-accent); color: #000; border: none; }
+.btn-submit:hover { background: #fff; }
