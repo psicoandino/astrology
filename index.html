@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRUE ASTRO POSITIONS :: PSICOANDINO</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="system-bar" data-html2canvas-ignore>
+        <div id="auth-status">STATE: GHOST // <span style="color: var(--terminal-green);">CAN SEE. LOGIN TO SAVE.</span></div>
+        <div class="auth-controls">
+            <button onclick="setAuth('GHOST')">GHOST</button>
+            <button onclick="setAuth('IDENTIFY')">IDENTIFY</button>
+        </div>
+    </div>
+
+    <header data-html2canvas-ignore>
+        <h1>TRUE ASTRO POSITIONS</h1>
+        <div class="controls">
+            <input type="date" id="date-picker" value="1996-05-06" onchange="updateDate()">
+            <button id="export-btn" class="ui-btn" onclick="exportToImage()">[ IMPRIMIR JPEG ]</button>
+        </div>
+    </header>
+
+    <div id="dashboard-zone">
+        </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
