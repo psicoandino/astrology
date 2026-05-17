@@ -11,7 +11,7 @@ body{
   font-family:'Georgia',serif;
   display:flex;
   justify-content:center;
-  padding:1.2rem 1rem 90px;
+  padding:86px 1rem 90px;
   min-height:100vh;
 }
 .card{
@@ -23,14 +23,40 @@ body{
   box-shadow:0 2px 20px rgba(0,0,0,.08);
 }
 
-/* ── HEADER ── */
-.app-header{
+/* ── STICKY TOP BAR ── */
+.sticky-top{
+  position:fixed;top:0;left:0;right:0;
+  display:flex;justify-content:center;
+  z-index:200;
+  pointer-events:none;
+}
+.top-inner{
+  width:100%;max-width:390px;
   background:#fff;
   border-bottom:1.5px solid #111;
-  padding:18px 20px 14px;
+  display:grid;grid-template-columns:1fr auto;
+  align-items:center;
+  padding:14px 16px 12px;
+  pointer-events:all;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
 }
-.app-title{font-size:11px;letter-spacing:.18em;color:#888;font-family:'Courier New',monospace;margin-bottom:4px}
-.app-name{font-size:22px;font-weight:700;color:#111;line-height:1}
+.top-left{}
+.top-label{font-size:10px;letter-spacing:.18em;color:#888;font-family:'Courier New',monospace;margin-bottom:3px}
+.top-name{font-size:20px;font-weight:700;color:#111;line-height:1}
+.top-context{font-size:9px;color:#aaa;font-family:'Courier New',monospace;letter-spacing:.05em;margin-top:3px}
+.btn-date{
+  background:#111;color:#fff;
+  border:none;border-radius:8px;
+  padding:8px 13px;
+  font-family:'Courier New',monospace;
+  font-size:10px;letter-spacing:.08em;
+  cursor:pointer;line-height:1.2;text-align:center;
+  transition:background .2s;
+}
+.btn-date:hover{background:#333}
+.btn-date .btn-icon{font-size:13px;display:block;margin-bottom:1px}
+.btn-date.live{background:#1D9E75}
+.btn-date.custom{background:#3d5a8a}
 
 /* ── COL HEADERS ── */
 .col-hdrs{
@@ -62,6 +88,17 @@ body{
 .sign.r{align-items:flex-end;text-align:right}
 .s-sym{font-size:17px;line-height:1.2;color:#1a1a1a}
 .s-name{font-size:9px;color:#999;font-family:'Courier New',monospace;letter-spacing:.03em}
+
+/* ── APPROXIMATE SIGN (no time given) ── */
+.sign.approx .s-sym{color:#b0a080;font-style:italic}
+.sign.approx .s-name{color:#c0b090;font-style:italic}
+.sign.approx .s-sym::after{content:'~';font-size:10px;vertical-align:super;margin-left:1px;color:#c0aa60}
+.approx-note{
+  font-size:8px;color:#c0aa60;font-family:'Courier New',monospace;
+  letter-spacing:.04em;font-style:italic;
+  text-align:center;padding:1px 0 4px;
+}
+
 .planet{display:flex;flex-direction:column;align-items:center;gap:1px}
 .p-sym{font-size:20px;line-height:1.15;color:#1a1a1a}
 .p-name{font-size:10.5px;font-weight:700;color:#1a1a1a;letter-spacing:.02em}
@@ -79,53 +116,80 @@ body{
 .sticky-bar{
   position:fixed;bottom:0;left:0;right:0;
   display:flex;justify-content:center;
-  z-index:100;
-  pointer-events:none;
+  z-index:100;pointer-events:none;
 }
 .bar-inner{
   width:100%;max-width:390px;
-  background:#0d0d0d;
-  color:#fff;
+  background:#0d0d0d;color:#fff;
   display:grid;grid-template-columns:1fr auto 1fr;
   align-items:center;
   padding:10px 16px 12px;
   pointer-events:all;
 }
 .bar-earth{font-size:11px;letter-spacing:.16em;font-family:'Courier New',monospace;color:#fff}
-.bar-time{
-  font-size:20px;letter-spacing:.08em;
-  font-family:'Courier New',monospace;
-  color:#fff;font-weight:300;
-  text-align:center;
-}
-.bar-date{
-  font-size:9px;color:#666;font-family:'Courier New',monospace;
-  letter-spacing:.05em;text-align:right;line-height:1.5;
-}
+.bar-time{font-size:20px;letter-spacing:.08em;font-family:'Courier New',monospace;color:#fff;font-weight:300;text-align:center}
+.bar-date{font-size:9px;color:#666;font-family:'Courier New',monospace;letter-spacing:.05em;text-align:right;line-height:1.5}
 .bar-tz{font-size:8px;color:#444;font-family:'Courier New',monospace;letter-spacing:.04em;text-align:right}
 .bar-dot{width:6px;height:6px;border-radius:50%;background:#1D9E75;display:inline-block;margin-right:6px;vertical-align:middle;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);
+  display:none;justify-content:center;align-items:center;
+  z-index:300;
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:#fff;border-radius:16px;padding:28px 24px 24px;
+  width:calc(100% - 40px);max-width:340px;
+  box-shadow:0 8px 32px rgba(0,0,0,.18);
+}
+.modal-title{font-size:14px;font-weight:700;letter-spacing:.12em;font-family:'Courier New',monospace;margin-bottom:4px;color:#111}
+.modal-sub{font-size:10px;color:#999;font-family:'Courier New',monospace;letter-spacing:.05em;margin-bottom:20px;line-height:1.5}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:9px;letter-spacing:.1em;color:#888;font-family:'Courier New',monospace}
+.field input{
+  border:1px solid #ddd;border-radius:8px;padding:10px 12px;
+  font-family:'Courier New',monospace;font-size:13px;color:#111;
+  outline:none;transition:border .15s;background:#fafaf8;
+}
+.field input:focus{border-color:#111}
+.field small{font-size:9px;color:#c0aa60;font-family:'Courier New',monospace;letter-spacing:.04em;line-height:1.4}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.btn-cancel{flex:1;background:#f5f3ec;color:#555;border:none;border-radius:8px;padding:11px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer}
+.btn-cancel:hover{background:#eee}
+.btn-live{background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:11px 14px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:.06em;cursor:pointer}
+.btn-live:hover{background:#178a63}
+.btn-go{flex:2;background:#111;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer}
+.btn-go:hover{background:#333}
+
 /* ── FOOTER ── */
 .app-footer{
-  border-top:.5px solid #eeebe5;
-  padding:10px 14px 12px;
-  text-align:center;
-  font-size:8px;color:#bbb;
-  font-family:'Courier New',monospace;
-  letter-spacing:.05em;
-  line-height:1.7;
+  border-top:.5px solid #eeebe5;padding:10px 14px 12px;
+  text-align:center;font-size:8px;color:#bbb;
+  font-family:'Courier New',monospace;letter-spacing:.05em;line-height:1.7;
 }
 </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="app-header">
-    <div class="app-title">POSICIONES REALES · IAU · GEOCÉNTRICO</div>
-    <div class="app-name">TRUE SPACES</div>
+<!-- STICKY TOP BAR -->
+<div class="sticky-top">
+  <div class="top-inner">
+    <div class="top-left">
+      <div class="top-label">POSICIONES REALES · IAU · GEOCÉNTRICO</div>
+      <div class="top-name">TRUE SPACES</div>
+      <div class="top-context" id="top-context">⟳ tiempo real · ahora</div>
+    </div>
+    <button class="btn-date live" id="btn-date" onclick="openModal()">
+      <span class="btn-icon">📅</span>FECHA
+    </button>
   </div>
+</div>
 
+<!-- CARD -->
+<div class="card">
   <div class="col-hdrs">
     <span class="ch">signo actual</span>
     <span class="ch c">planeta · grado</span>
@@ -142,7 +206,7 @@ body{
   </div>
 </div>
 
-<!-- STICKY EARTH + CLOCK -->
+<!-- STICKY BOTTOM: EARTH + CLOCK -->
 <div class="sticky-bar">
   <div class="bar-inner">
     <div class="bar-earth"><span class="bar-dot"></span>⊕ EARTH</div>
@@ -150,6 +214,28 @@ body{
     <div>
       <div class="bar-date" id="bar-date">-- --- ----</div>
       <div class="bar-tz" id="bar-tz">UTC --</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DATE INPUT -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-title">CALCULAR POSICIONES</div>
+    <div class="modal-sub">Ingresa una fecha para ver los tránsitos de ese momento.<br>La hora es opcional — si la omites, Luna, Mercurio y Venus<br>aparecerán marcados como posición aproximada.</div>
+    <div class="field">
+      <label>FECHA (obligatorio)</label>
+      <input type="date" id="input-date">
+    </div>
+    <div class="field">
+      <label>HORA (opcional)</label>
+      <input type="time" id="input-time">
+      <small>⚠ sin hora: Luna, Mercurio y Venus → posición aproximada</small>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-live" onclick="resetToLive()" title="Volver a tiempo real">⟳ LIVE</button>
+      <button class="btn-cancel" onclick="closeModal()">CANCELAR</button>
+      <button class="btn-go" onclick="applyDate()">CALCULAR →</button>
     </div>
   </div>
 </div>
@@ -420,9 +506,18 @@ return new kd(this.curr.time,a,b)};$jscomp.global.Object.defineProperties(H.prot
 
 <script>
 // ══════════════════════════════════════════════
-// TRUE SPACES · CALCULATION ENGINE
-// Adapted from user's app.js + IAU boundaries
+// TRUE SPACES · APP ENGINE v2
+// Motor: Astronomy Engine (Don Cross, MIT)
+// Boundaries: IAU official
 // ══════════════════════════════════════════════
+
+const FAST = new Set(["Moon","Mercury","Venus"]);
+
+let state = {
+  mode: 'live',
+  targetDate: null,
+  isApproximate: false
+};
 
 const IAU = [
   { name:"Aries",       short:"Aries",    sym:"♈", start:29.0,  end:53.5  },
@@ -437,24 +532,21 @@ const IAU = [
   { name:"Sagittarius", short:"Sagitt.",  sym:"♐", start:266.3, end:299.7 },
   { name:"Capricornus", short:"Capric.",  sym:"♑", start:299.7, end:327.6 },
   { name:"Aquarius",    short:"Aquarius", sym:"♒", start:327.6, end:348.7 },
-  { name:"Pisces",      short:"Pisces",   sym:"♓", start:348.7, end:389.0 }  // wraps: 348.7→360 + 0→29
+  { name:"Pisces",      short:"Pisces",   sym:"♓", start:348.7, end:389.0 }
 ];
 
 function getConstellation(lon) {
-  if (lon >= 348.7 || lon < 29.0) return IAU[12]; // Pisces (wraps 0°)
+  if (lon >= 348.7 || lon < 29.0) return IAU[12];
   return IAU.find(b => lon >= b.start && lon < b.end) || IAU[12];
 }
-
 function getNextConstellation(c) {
-  const i = IAU.findIndex(b => b.name === c.name);
-  return IAU[(i + 1) % IAU.length];
+  return IAU[(IAU.findIndex(b => b.name === c.name) + 1) % IAU.length];
 }
-
 function getProgress(lon, c) {
   let deg, span;
   if (c.name === "Pisces") {
     deg = lon >= 348.7 ? lon - 348.7 : lon + (360 - 348.7);
-    span = 29.0 + (360 - 348.7); // ~40.3°
+    span = 29.0 + (360 - 348.7);
   } else {
     deg = lon - c.start;
     span = c.end - c.start;
@@ -481,31 +573,22 @@ const CAT_META = {
   personal:      { label:"PERSONAL",      color:"#1D9E75" }
 };
 
+// ── CALC ──
 function calcPositions(date) {
   const t = Astronomy.MakeTime(date);
   return PLANETS.map(p => {
     try {
-      const vec  = Astronomy.GeoVector(p.key, t, true);
-      const ecl  = Astronomy.Ecliptic(vec);
-      let lon    = ecl.elon % 360;
+      const vec = Astronomy.GeoVector(p.key, t, true);
+      const ecl = Astronomy.Ecliptic(vec);
+      let lon = ecl.elon % 360;
       if (lon < 0) lon += 360;
       const c    = getConstellation(lon);
       const next = getNextConstellation(c);
-      const localDeg = (() => {
-        if (c.name === "Pisces") return lon >= 348.7 ? lon - 348.7 : lon + (360 - 348.7);
-        return lon - c.start;
-      })();
-      const pct = getProgress(lon, c);
-      return {
-        ...p,
-        constellation: c,
-        nextConst: next,
-        degree: localDeg.toFixed(1),
-        pct
-      };
-    } catch(e) {
-      return { ...p, error: e.message };
-    }
+      const localDeg = c.name === "Pisces"
+        ? (lon >= 348.7 ? lon - 348.7 : lon + (360 - 348.7))
+        : lon - c.start;
+      return { ...p, constellation:c, nextConst:next, degree:localDeg.toFixed(1), pct:getProgress(lon,c) };
+    } catch(e) { return { ...p, error: e.message }; }
   });
 }
 
@@ -517,19 +600,18 @@ function arcSVG() {
 function render(data) {
   let html = "";
   let lastCat = null;
-
   data.forEach((p, i) => {
     if (p.error) return;
     const meta = CAT_META[p.cat];
-
+    const isApprox = state.isApproximate && FAST.has(p.name);
     if (p.cat !== lastCat) {
       html += `<div class="cat"><span class="cat-dot" style="background:${meta.color}"></span>${meta.label}</div>`;
       lastCat = p.cat;
     }
-
+    const ac = isApprox ? ' approx' : '';
     html += `
       <div class="row">
-        <div class="sign">
+        <div class="sign${ac}">
           <span class="s-sym">${p.constellation.sym}</span>
           <span class="s-name">${p.constellation.short}</span>
         </div>
@@ -539,17 +621,73 @@ function render(data) {
           <span class="p-deg">~${p.degree}°</span>
           <div class="prog-wrap"><div class="prog" style="width:${p.pct.toFixed(0)}%;background:${meta.color}"></div></div>
         </div>
-        <div class="sign r">
+        <div class="sign r${ac}">
           <span class="s-sym">${p.nextConst.sym}</span>
           <span class="s-name">${p.nextConst.short}</span>
         </div>
       </div>
+      ${isApprox ? '<div class="approx-note">posición aproximada · hora no ingresada</div>' : ''}
     `;
-
     if (i < data.length - 1) html += arcSVG();
   });
-
   document.getElementById('diorama').innerHTML = html;
+}
+
+function refresh() {
+  const date = state.mode === 'live' ? new Date() : state.targetDate;
+  try { render(calcPositions(date)); }
+  catch(e) { document.getElementById('diorama').innerHTML = `<div class="msg" style="color:red">ERROR: ${e.message}</div>`; }
+}
+
+// ── MODAL ──
+function openModal() {
+  if (state.mode === 'custom' && state.targetDate) {
+    const d = state.targetDate;
+    document.getElementById('input-date').value =
+      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  } else {
+    const now = new Date();
+    document.getElementById('input-date').value =
+      `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('input-time').value = '';
+  }
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+function applyDate() {
+  const dateStr = document.getElementById('input-date').value;
+  const timeStr = document.getElementById('input-time').value;
+  if (!dateStr) { alert('Ingresa una fecha.'); return; }
+  const [y, mo, d] = dateStr.split('-').map(Number);
+  let targetDate;
+  if (timeStr) {
+    const [h, mi] = timeStr.split(':').map(Number);
+    targetDate = new Date(y, mo-1, d, h, mi, 0);
+    state.isApproximate = false;
+  } else {
+    targetDate = new Date(Date.UTC(y, mo-1, d, 12, 0, 0));
+    state.isApproximate = true;
+  }
+  state.mode = 'custom';
+  state.targetDate = targetDate;
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const label = `${d} ${months[mo-1]} ${y}${timeStr ? ' · '+timeStr : ' · aprox.'}`;
+  document.getElementById('top-context').textContent = `📅 ${label}`;
+  document.getElementById('btn-date').className = 'btn-date custom';
+  closeModal();
+  refresh();
+}
+
+function resetToLive() {
+  state.mode = 'live';
+  state.targetDate = null;
+  state.isApproximate = false;
+  document.getElementById('top-context').textContent = '⟳ tiempo real · ahora';
+  document.getElementById('btn-date').className = 'btn-date live';
+  closeModal();
+  refresh();
 }
 
 // ── CLOCK ──
@@ -566,18 +704,10 @@ function updateClock() {
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
-  try {
-    const data = calcPositions(new Date());
-    render(data);
-  } catch(e) {
-    document.getElementById('diorama').innerHTML = `<div class="msg" style="color:red">ERROR: ${e.message}</div>`;
-  }
+  refresh();
   updateClock();
   setInterval(updateClock, 1000);
-  // refresh positions every 5 min (Moon moves ~0.05° per 5 min)
-  setInterval(() => {
-    try { render(calcPositions(new Date())); } catch(e){}
-  }, 300000);
+  setInterval(() => { if (state.mode === 'live') refresh(); }, 300000);
 });
 </script>
 </body>
