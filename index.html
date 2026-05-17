@@ -4,172 +4,447 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>True Spaces · Transits</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:#f5f3ec;
-  font-family:'Georgia',serif;
-  display:flex;
-  justify-content:center;
-  padding:86px 1rem 90px;
-  min-height:100vh;
-}
-.card{
-  background:#fff;
-  width:100%;
-  max-width:390px;
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 2px 20px rgba(0,0,0,.08);
+/* ── RESET ── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+/* ── ROOT: fluid type scale usando clamp ──
+   Base: 14px en 320px → 16px en 430px
+   Todos los tamaños cuelgan de 1rem = ese valor
+*/
+:root{
+  font-size: clamp(14px, 3.5vw, 17px);
+  --mono: 'Courier New', monospace;
+  --serif: 'Georgia', serif;
+  --c-bg:   #f5f3ec;
+  --c-card: #ffffff;
+  --c-ink:  #1a1a1a;
+  --c-mute: #888888;
+  --c-edge: #e8e4dc;
+  --c-top-h: 70px;   /* altura sticky top estimada */
+  --c-bot-h: 62px;   /* altura sticky bottom estimada */
 }
 
-/* ── STICKY TOP BAR ── */
+html{ height:100%; }
+
+body{
+  background: var(--c-bg);
+  font-family: var(--serif);
+  min-height: 100%;
+  /* espacio para ambas barras sticky + safe-area */
+  padding-top:  calc(var(--c-top-h) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--c-bot-h) + env(safe-area-inset-bottom, 0px));
+  padding-left:  0;
+  padding-right: 0;
+}
+
+/* ── CARD: full bleed en mobile, máx en tablet+ ── */
+.card{
+  background: var(--c-card);
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  /* sombra solo en tablet/desktop */
+  box-shadow: none;
+}
+@media(min-width: 540px){
+  body{ padding-left: 1rem; padding-right: 1rem; background: #ebe9e1; }
+  .card{
+    border-radius: 20px;
+    box-shadow: 0 4px 32px rgba(0,0,0,.10);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* ── STICKY TOP ── */
 .sticky-top{
-  position:fixed;top:0;left:0;right:0;
-  display:flex;justify-content:center;
-  z-index:200;
-  pointer-events:none;
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 200;
+  background: var(--c-card);
+  border-bottom: 1.5px solid #111;
+  padding-top: env(safe-area-inset-top, 0px);
+  box-shadow: 0 2px 14px rgba(0,0,0,.07);
 }
 .top-inner{
-  width:100%;max-width:390px;
-  background:#fff;
-  border-bottom:1.5px solid #111;
-  display:grid;grid-template-columns:1fr auto;
-  align-items:center;
-  padding:14px 16px 12px;
-  pointer-events:all;
-  box-shadow:0 2px 12px rgba(0,0,0,.06);
+  max-width: 540px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: .75rem 1rem .65rem;
+  gap: .75rem;
 }
-.top-left{}
-.top-label{font-size:10px;letter-spacing:.18em;color:#888;font-family:'Courier New',monospace;margin-bottom:3px}
-.top-name{font-size:20px;font-weight:700;color:#111;line-height:1}
-.top-context{font-size:9px;color:#aaa;font-family:'Courier New',monospace;letter-spacing:.05em;margin-top:3px}
+.top-label{
+  font-size: .6rem; letter-spacing: .18em;
+  color: var(--c-mute); font-family: var(--mono);
+  margin-bottom: .2rem; text-transform: uppercase;
+}
+.top-name{
+  font-size: 1.35rem; font-weight: 700;
+  color: #111; line-height: 1;
+  font-family: var(--serif);
+}
+.top-context{
+  font-size: .6rem; color: #aaa;
+  font-family: var(--mono); letter-spacing: .05em;
+  margin-top: .22rem;
+}
 .btn-date{
-  background:#111;color:#fff;
-  border:none;border-radius:8px;
-  padding:8px 13px;
-  font-family:'Courier New',monospace;
-  font-size:10px;letter-spacing:.08em;
-  cursor:pointer;line-height:1.2;text-align:center;
-  transition:background .2s;
+  background: #111; color: #fff;
+  border: none; border-radius: 10px;
+  padding: .55rem .85rem;
+  font-family: var(--mono);
+  font-size: .65rem; letter-spacing: .08em;
+  cursor: pointer; line-height: 1.3; text-align: center;
+  transition: background .2s;
+  white-space: nowrap;
+  /* toque grande: min 44px */
+  min-width: 52px; min-height: 44px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
 }
-.btn-date:hover{background:#333}
-.btn-date .btn-icon{font-size:13px;display:block;margin-bottom:1px}
-.btn-date.live{background:#1D9E75}
-.btn-date.custom{background:#3d5a8a}
+.btn-date .btn-icon{ font-size: .9rem; display:block; margin-bottom:.1rem }
+.btn-date.live  { background: #1D9E75 }
+.btn-date.custom{ background: #3d5a8a }
 
-/* ── COL HEADERS ── */
+/* ── COLUMN HEADERS ── */
 .col-hdrs{
-  display:grid;grid-template-columns:1fr 1.5fr 1fr;
-  padding:7px 14px 5px;
-  border-bottom:.5px solid #e8e4dc;
-  background:#fafaf8;
+  display: grid; grid-template-columns: 1fr 1.5fr 1fr;
+  padding: .5rem 1rem .4rem;
+  border-bottom: .5px solid var(--c-edge);
+  background: #fafaf8;
 }
-.ch{font-size:8.5px;color:#aaa;letter-spacing:.06em;font-family:'Courier New',monospace}
-.ch.c{text-align:center}.ch.r{text-align:right}
+.ch{ font-size: .6rem; color: #bbb; letter-spacing: .07em; font-family: var(--mono) }
+.ch.c{ text-align: center }
+.ch.r{ text-align: right }
 
-/* ── CATEGORY ── */
+/* ── CATEGORY LABEL ── */
 .cat{
-  display:flex;align-items:center;gap:6px;
-  padding:8px 14px 2px;
-  font-size:8px;letter-spacing:.13em;color:#aaa;
-  font-family:'Courier New',monospace;
-  border-top:.5px solid #eeebe5;
-  margin-top:1px;
+  display: flex; align-items: center; gap: .4rem;
+  padding: .7rem 1rem .25rem;
+  font-size: .58rem; letter-spacing: .14em;
+  color: #bbb; font-family: var(--mono);
+  border-top: .5px solid #eeebe5;
+  margin-top: .1rem;
+  text-transform: uppercase;
 }
-.cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cat-dot{ width: 7px; height: 7px; border-radius: 50%; flex-shrink:0 }
 
-/* ── PLANET ROW ── */
+/* ── PLANET ROW — el corazón del diseño ── */
 .row{
-  display:grid;grid-template-columns:1fr 1.5fr 1fr;
-  align-items:center;padding:6px 14px 3px;
+  display: grid; grid-template-columns: 1fr 1.5fr 1fr;
+  align-items: center;
+  padding: .6rem 1rem .4rem;
 }
-.sign{display:flex;flex-direction:column;gap:1px}
-.sign.r{align-items:flex-end;text-align:right}
-.s-sym{font-size:17px;line-height:1.2;color:#1a1a1a}
-.s-name{font-size:9px;color:#999;font-family:'Courier New',monospace;letter-spacing:.03em}
+.sign{ display: flex; flex-direction: column; gap: .1rem }
+.sign.r{ align-items: flex-end; text-align: right }
 
-/* ── APPROXIMATE SIGN (no time given) ── */
-.sign.approx .s-sym{color:#b0a080;font-style:italic}
-.sign.approx .s-name{color:#c0b090;font-style:italic}
-.sign.approx .s-sym::after{content:'~';font-size:10px;vertical-align:super;margin-left:1px;color:#c0aa60}
+/* símbolo del signo: grande y vistoso */
+.s-sym{
+  font-size: 1.65rem; /* ~26px en 390px — se ve grande */
+  line-height: 1.1; color: var(--c-ink);
+}
+.s-name{
+  font-size: .6rem; color: #aaa;
+  font-family: var(--mono); letter-spacing: .04em;
+}
+
+/* ── APPROXIMATION STYLE ── */
+.sign.approx .s-sym{ color: #b8a878; font-style: italic }
+.sign.approx .s-name{ color: #c8b888; font-style: italic }
+.sign.approx .s-sym::after{
+  content:'~'; font-size: .55rem;
+  vertical-align: super; margin-left: 1px; color: #c8aa50;
+}
 .approx-note{
-  font-size:8px;color:#c0aa60;font-family:'Courier New',monospace;
-  letter-spacing:.04em;font-style:italic;
-  text-align:center;padding:1px 0 4px;
+  font-size: .55rem; color: #c8aa50;
+  font-family: var(--mono); letter-spacing: .04em;
+  font-style: italic; text-align: center;
+  padding: .1rem 0 .35rem;
 }
 
-.planet{display:flex;flex-direction:column;align-items:center;gap:1px}
-.p-sym{font-size:20px;line-height:1.15;color:#1a1a1a}
-.p-name{font-size:10.5px;font-weight:700;color:#1a1a1a;letter-spacing:.02em}
-.p-deg{font-size:10px;color:#888;font-family:'Courier New',monospace}
-.prog-wrap{width:44px;height:3px;background:#eee;border-radius:2px;margin-top:3px;overflow:hidden}
-.prog{height:100%;border-radius:2px}
+/* planeta central */
+.planet{ display: flex; flex-direction: column; align-items: center; gap: .1rem }
+.p-sym{
+  font-size: 1.75rem; /* el más grande */
+  line-height: 1.1; color: var(--c-ink);
+}
+.p-name{
+  font-size: .72rem; font-weight: 700;
+  color: var(--c-ink); letter-spacing: .03em;
+}
+.p-deg{
+  font-size: .62rem; color: var(--c-mute);
+  font-family: var(--mono);
+}
+.prog-wrap{
+  width: 3rem; height: 3px;
+  background: #eee; border-radius: 2px;
+  margin-top: .3rem; overflow: hidden;
+}
+.prog{ height: 100%; border-radius: 2px }
 
 /* ── SVG ARC ── */
-.arc{display:block;width:100%;height:11px;overflow:visible}
+.arc{ display: block; width: 100%; height: 10px; overflow: visible }
 
 /* ── LOADING / ERROR ── */
-.msg{padding:30px 20px;text-align:center;font-size:12px;color:#888;font-family:'Courier New',monospace;letter-spacing:.06em}
+.msg{
+  padding: 2rem 1rem; text-align: center;
+  font-size: .75rem; color: var(--c-mute);
+  font-family: var(--mono); letter-spacing: .06em;
+}
 
-/* ── STICKY BOTTOM BAR ── */
+/* ── STICKY BOTTOM: EARTH + CLOCK ── */
 .sticky-bar{
-  position:fixed;bottom:0;left:0;right:0;
-  display:flex;justify-content:center;
-  z-index:100;pointer-events:none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  background: #0d0d0d;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .bar-inner{
-  width:100%;max-width:390px;
-  background:#0d0d0d;color:#fff;
-  display:grid;grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  padding:10px 16px 12px;
-  pointer-events:all;
+  max-width: 540px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: .65rem 1rem .7rem;
 }
-.bar-earth{font-size:11px;letter-spacing:.16em;font-family:'Courier New',monospace;color:#fff}
-.bar-time{font-size:20px;letter-spacing:.08em;font-family:'Courier New',monospace;color:#fff;font-weight:300;text-align:center}
-.bar-date{font-size:9px;color:#666;font-family:'Courier New',monospace;letter-spacing:.05em;text-align:right;line-height:1.5}
-.bar-tz{font-size:8px;color:#444;font-family:'Courier New',monospace;letter-spacing:.04em;text-align:right}
-.bar-dot{width:6px;height:6px;border-radius:50%;background:#1D9E75;display:inline-block;margin-right:6px;vertical-align:middle;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.bar-earth{
+  font-size: .65rem; letter-spacing: .16em;
+  font-family: var(--mono); color: #fff;
+  display: flex; align-items: center; gap: .3rem;
+}
+.bar-time{
+  font-size: 1.35rem; letter-spacing: .08em;
+  font-family: var(--mono); color: #fff; font-weight: 300;
+  text-align: center;
+}
+.bar-date{
+  font-size: .58rem; color: #666;
+  font-family: var(--mono); letter-spacing: .04em;
+  text-align: right; line-height: 1.6;
+}
+.bar-tz{
+  font-size: .52rem; color: #444;
+  font-family: var(--mono); letter-spacing: .04em;
+  text-align: right;
+}
+.bar-dot{
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #1D9E75; flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.35} }
 
 /* ── MODAL ── */
 .modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.6);
-  display:none;justify-content:center;align-items:center;
-  z-index:300;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.65);
+  display: none; justify-content: center; align-items: flex-end;
+  z-index: 300;
+  /* bottom sheet en mobile */
 }
-.modal-overlay.open{display:flex}
+.modal-overlay.open{ display: flex }
 .modal-box{
-  background:#fff;border-radius:16px;padding:28px 24px 24px;
-  width:calc(100% - 40px);max-width:340px;
-  box-shadow:0 8px 32px rgba(0,0,0,.18);
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 1.5rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  width: 100%; max-width: 540px;
+  box-shadow: 0 -4px 32px rgba(0,0,0,.18);
+  /* handle bar */
 }
-.modal-title{font-size:14px;font-weight:700;letter-spacing:.12em;font-family:'Courier New',monospace;margin-bottom:4px;color:#111}
-.modal-sub{font-size:10px;color:#999;font-family:'Courier New',monospace;letter-spacing:.05em;margin-bottom:20px;line-height:1.5}
-.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.field label{font-size:9px;letter-spacing:.1em;color:#888;font-family:'Courier New',monospace}
+.modal-box::before{
+  content:''; display:block;
+  width: 2.5rem; height: 4px;
+  background: #ddd; border-radius: 2px;
+  margin: 0 auto .9rem;
+}
+.modal-title{
+  font-size: .9rem; font-weight: 700;
+  letter-spacing: .12em; font-family: var(--mono);
+  margin-bottom: .3rem; color: #111;
+}
+.modal-sub{
+  font-size: .62rem; color: #999;
+  font-family: var(--mono); letter-spacing: .04em;
+  margin-bottom: 1.25rem; line-height: 1.6;
+}
+.field{ display: flex; flex-direction: column; gap: .35rem; margin-bottom: .9rem }
+.field label{
+  font-size: .6rem; letter-spacing: .1em;
+  color: #888; font-family: var(--mono);
+}
 .field input{
-  border:1px solid #ddd;border-radius:8px;padding:10px 12px;
-  font-family:'Courier New',monospace;font-size:13px;color:#111;
-  outline:none;transition:border .15s;background:#fafaf8;
+  border: 1.5px solid #ddd; border-radius: 10px;
+  padding: .75rem .9rem;
+  font-family: var(--mono); font-size: 1rem;
+  color: #111; outline: none;
+  transition: border .15s; background: #fafaf8;
+  /* tap target */
+  min-height: 48px;
 }
-.field input:focus{border-color:#111}
-.field small{font-size:9px;color:#c0aa60;font-family:'Courier New',monospace;letter-spacing:.04em;line-height:1.4}
-.modal-actions{display:flex;gap:10px;margin-top:20px}
-.btn-cancel{flex:1;background:#f5f3ec;color:#555;border:none;border-radius:8px;padding:11px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer}
-.btn-cancel:hover{background:#eee}
-.btn-live{background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:11px 14px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:.06em;cursor:pointer}
-.btn-live:hover{background:#178a63}
-.btn-go{flex:2;background:#111;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:.08em;cursor:pointer}
-.btn-go:hover{background:#333}
+.field input:focus{ border-color: #111 }
+.field small{
+  font-size: .58rem; color: #c0aa60;
+  font-family: var(--mono); letter-spacing: .04em; line-height: 1.5;
+}
+.modal-actions{ display: flex; gap: .6rem; margin-top: 1.25rem }
+.btn-cancel{
+  flex: 1; background: #f5f3ec; color: #555;
+  border: none; border-radius: 10px; padding: .8rem;
+  font-family: var(--mono); font-size: .65rem;
+  letter-spacing: .07em; cursor: pointer;
+  min-height: 48px;
+}
+.btn-live{
+  background: #1D9E75; color: #fff;
+  border: none; border-radius: 10px; padding: .8rem .9rem;
+  font-family: var(--mono); font-size: .65rem;
+  letter-spacing: .06em; cursor: pointer;
+  min-height: 48px;
+}
+.btn-go{
+  flex: 2; background: #111; color: #fff;
+  border: none; border-radius: 10px; padding: .8rem;
+  font-family: var(--mono); font-size: .65rem;
+  letter-spacing: .07em; cursor: pointer;
+  min-height: 48px;
+}
 
 /* ── FOOTER ── */
 .app-footer{
-  border-top:.5px solid #eeebe5;padding:10px 14px 12px;
-  text-align:center;font-size:8px;color:#bbb;
-  font-family:'Courier New',monospace;letter-spacing:.05em;line-height:1.7;
+  border-top: .5px solid var(--c-edge);
+  padding: .7rem 1rem .9rem;
+  text-align: center;
+  font-size: .55rem; color: #ccc;
+  font-family: var(--mono); letter-spacing: .05em; line-height: 1.8;
 }
+
+/* ── PLANET SYMBOL COLORS BY CATEGORY ── */
+.p-sym.cat-transpersonal { color: #7F77DD }
+.p-sym.cat-social        { color: #BA7517 }
+.p-sym.cat-personal      { color: #1D9E75 }
+
+/* ── RETROGRADE BADGE ── */
+.retro-badge {
+  display: inline-block;
+  font-size: .52rem; font-family: var(--mono);
+  color: #c0392b;
+  background: #fff0ee;
+  border: 1px solid #f5c6c2;
+  border-radius: 4px;
+  padding: 0 .28rem;
+  letter-spacing: .04em;
+  margin-top: .15rem;
+  line-height: 1.5;
+}
+/* row highlight when retrograde */
+.row.is-retro .p-name { color: #c0392b }
+.row.is-retro .p-sym  { opacity: .85 }
+
+/* ── SHARE BUTTON in top bar ── */
+.btn-share {
+  background: #f5f3ec; color: #333;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  padding: .55rem .75rem;
+  font-family: var(--mono);
+  font-size: .65rem; letter-spacing: .06em;
+  cursor: pointer; line-height: 1.3; text-align: center;
+  transition: all .2s;
+  min-width: 48px; min-height: 44px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  white-space: nowrap;
+}
+.btn-share:hover { background: #111; color: #fff; border-color: #111 }
+.btn-share .btn-icon { font-size: .9rem; display:block; margin-bottom: .1rem }
+.btn-share.loading { opacity: .5; pointer-events: none }
+
+/* top-inner: 3 columns when share button present */
+.top-inner { grid-template-columns: 1fr auto auto }
+
+/* ── TOAST NOTIFICATION ── */
+.toast {
+  position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #111; color: #fff;
+  font-family: var(--mono); font-size: .65rem; letter-spacing: .07em;
+  padding: .6rem 1.2rem; border-radius: 20px;
+  opacity: 0; pointer-events: none;
+  transition: all .3s ease;
+  z-index: 500; white-space: nowrap;
+}
+.toast.show {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+
+/* ── DARK MODE VARIABLES ── */
+html.dark {
+  --c-bg:   #0e0e11;
+  --c-card: #17171b;
+  --c-ink:  #e4e0d8;
+  --c-mute: #666;
+  --c-edge: #2c2c32;
+}
+html.dark body { background: var(--c-bg) }
+html.dark .card { background: var(--c-card) }
+html.dark .sticky-top { background: var(--c-card); border-bottom-color: #2c2c32 }
+html.dark .top-name { color: #e4e0d8 }
+html.dark .top-label { color: #444 }
+html.dark .btn-share { background: #222226; color: #aaa; border-color: #333 }
+html.dark .col-hdrs { background: #111115 }
+html.dark .ch { color: #444 }
+html.dark .cat { border-top-color: #222; color: #444 }
+html.dark .s-sym { color: #e4e0d8 }
+html.dark .s-name { color: #555 }
+html.dark .p-name { color: #e4e0d8 }
+html.dark .p-deg  { color: #555 }
+html.dark .prog-wrap { background: #252528 }
+html.dark .arc path { stroke: #252528 }
+html.dark .retro-badge { background: #1f0a0a; border-color: #4a1a1a; color: #e07070 }
+html.dark .row.is-retro .p-name { color: #e07070 }
+html.dark .app-footer { color: #2a2a2e; border-top-color: #222 }
+html.dark .sticky-bar { background: #070709 }
+html.dark .bar-dot { background: #1D9E75 }
+html.dark .modal-box { background: #17171b }
+html.dark .modal-title { color: #e4e0d8 }
+html.dark .modal-sub { color: #444 }
+html.dark .field input { background: #0e0e11; border-color: #2c2c32; color: #e4e0d8 }
+html.dark .field label { color: #555 }
+html.dark .field small { color: #b8922a }
+html.dark .btn-cancel { background: #222226; color: #777 }
+html.dark .modal-box::before { background: #333 }
+html.dark .approx-note { color: #b8922a }
+html.dark .sign.approx .s-sym { color: #8a7a40 }
+html.dark .sign.approx .s-name { color: #7a6a38 }
+
+/* ── NEXT SIGN ENTRY DATE ── */
+.s-entry {
+  font-size: .52rem;
+  color: #bbb;
+  font-family: var(--mono);
+  letter-spacing: .03em;
+  margin-top: .18rem;
+  line-height: 1.3;
+}
+html.dark .s-entry { color: #444 }
+
+/* ── DARK TOGGLE BUTTON ── */
+.btn-dark {
+  background: transparent; color: #888;
+  border: 1.5px solid #ddd; border-radius: 10px;
+  padding: .55rem .65rem;
+  font-family: var(--mono); font-size: .8rem;
+  cursor: pointer; min-height: 44px; min-width: 40px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.btn-dark:hover { background: #111; color: #fff; border-color: #111 }
+html.dark .btn-dark { border-color: #333; color: #aaa }
+html.dark .btn-dark:hover { background: #e4e0d8; color: #111; border-color: #e4e0d8 }
+
+/* top: 4 columns now */
+.top-inner { grid-template-columns: 1fr auto auto auto !important }
 </style>
 </head>
 <body>
@@ -182,11 +457,18 @@ body{
       <div class="top-name">TRUE SPACES</div>
       <div class="top-context" id="top-context">⟳ tiempo real · ahora</div>
     </div>
+    <button class="btn-dark" id="btn-dark" onclick="toggleDark()" title="Modo oscuro">◑</button>
+    <button class="btn-share" id="btn-share" onclick="captureAndShare()">
+      <span class="btn-icon">⬇︎</span>IMG
+    </button>
     <button class="btn-date live" id="btn-date" onclick="openModal()">
       <span class="btn-icon">📅</span>FECHA
     </button>
   </div>
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <!-- CARD -->
 <div class="card">
@@ -506,10 +788,30 @@ return new kd(this.curr.time,a,b)};$jscomp.global.Object.defineProperties(H.prot
 
 <script>
 // ══════════════════════════════════════════════
-// TRUE SPACES · APP ENGINE v2
+// TRUE SPACES · APP ENGINE v3
 // Motor: Astronomy Engine (Don Cross, MIT)
-// Boundaries: IAU official
+// Boundaries: IAU approximate (ecliptic lon)
 // ══════════════════════════════════════════════
+
+// ── ALGORITHM AUDIT NOTES ──
+// 1. PLANET POSITIONS: Astronomy.GeoVector uses VSOP87 theory.
+//    Accuracy: ~1 arcsec inner planets, ~1-2 arcmin outer, years 1900-2100.
+//    Pluto uses Chebyshev tables (~5 arcmin). RELIABLE for sign-level work.
+//
+// 2. IAU BOUNDARIES: We use ecliptic-longitude ranges as approximation.
+//    Real IAU boundaries are RA/Dec B1875. Error: up to ~1-2° near crossings.
+//    Consequence: sign attribution can be off by ~1-2 days near transitions.
+//    ACCEPTABLE for astrological use, NOT suitable for strict IAU classification.
+//
+// 3. RETROGRADE: Uses ±1h centered finite-difference on geocentric ecliptic lon.
+//    Previous method (24h backward) had noise near station points.
+//    ±1h is more accurate but still can flip within ±1 day of exact station.
+//    RELIABLE for current retrograde status; dates of station ±1 day margin.
+//
+// 4. NEXT-SIGN ENTRY: Adaptive step binary search on ecliptic longitude.
+//    Accuracy: ±15 min after 28 bisection steps. Steps sized by planet speed.
+//    Finds FIRST sign change — for retrograde planets this may be a temporary
+//    ingress followed by retreat. Labeled "→" to indicate next crossing.
 
 const FAST = new Set(["Moon","Mercury","Venus"]);
 
@@ -518,6 +820,390 @@ let state = {
   targetDate: null,
   isApproximate: false
 };
+
+// Dark mode — persists across sessions
+let darkMode = (() => {
+  try { return localStorage.getItem('ts-dark') === '1'; } catch(e) { return false; }
+})();
+
+// ── IAU boundaries (ecliptic longitude, J2000 approximation) ──
+const IAU = [
+  { name:"Aries",       short:"Aries",    sym:"♈", start:29.0,  end:53.5  },
+  { name:"Taurus",      short:"Taurus",   sym:"♉", start:53.5,  end:90.2  },
+  { name:"Gemini",      short:"Gemini",   sym:"♊", start:90.2,  end:118.1 },
+  { name:"Cancer",      short:"Cancer",   sym:"♋", start:118.1, end:138.2 },
+  { name:"Leo",         short:"Leo",      sym:"♌", start:138.2, end:173.9 },
+  { name:"Virgo",       short:"Virgo",    sym:"♍", start:173.9, end:218.0 },
+  { name:"Libra",       short:"Libra",    sym:"♎", start:218.0, end:241.0 },
+  { name:"Scorpius",    short:"Scorpius", sym:"♏", start:241.0, end:247.7 },
+  { name:"Ophiuchus",   short:"Ophiuch.", sym:"⛎", start:247.7, end:266.3 },
+  { name:"Sagittarius", short:"Sagitt.",  sym:"♐", start:266.3, end:299.7 },
+  { name:"Capricornus", short:"Capric.",  sym:"♑", start:299.7, end:327.6 },
+  { name:"Aquarius",    short:"Aquarius", sym:"♒", start:327.6, end:348.7 },
+  { name:"Pisces",      short:"Pisces",   sym:"♓", start:348.7, end:389.0 }
+];
+
+function getConstellation(lon) {
+  if (lon >= 348.7 || lon < 29.0) return IAU[12];
+  return IAU.find(b => lon >= b.start && lon < b.end) || IAU[12];
+}
+function getNextConstellation(c) {
+  return IAU[(IAU.findIndex(b => b.name === c.name) + 1) % IAU.length];
+}
+function getProgress(lon, c) {
+  let deg, span;
+  if (c.name === "Pisces") {
+    deg  = lon >= 348.7 ? lon - 348.7 : lon + (360 - 348.7);
+    span = 29.0 + (360 - 348.7);
+  } else {
+    deg  = lon - c.start;
+    span = c.end - c.start;
+  }
+  return Math.min(100, Math.max(0, (deg / span) * 100));
+}
+
+const PLANETS = [
+  { key:"Pluto",   name:"Pluto",   sym:"♇", cat:"transpersonal" },
+  { key:"Neptune", name:"Neptune", sym:"♆", cat:"transpersonal" },
+  { key:"Uranus",  name:"Uranus",  sym:"♅", cat:"transpersonal" },
+  { key:"Saturn",  name:"Saturn",  sym:"♄", cat:"social"        },
+  { key:"Jupiter", name:"Jupiter", sym:"♃", cat:"social"        },
+  { key:"Mars",    name:"Mars",    sym:"♂", cat:"personal"      },
+  { key:"Venus",   name:"Venus",   sym:"♀", cat:"personal"      },
+  { key:"Mercury", name:"Mercury", sym:"☿", cat:"personal"      },
+  { key:"Sun",     name:"Sun",     sym:"☉", cat:"personal"      },
+  { key:"Moon",    name:"Moon",    sym:"☽", cat:"personal"      }
+];
+
+const CAT_META = {
+  transpersonal: { label:"TRANSPERSONAL", color:"#7F77DD" },
+  social:        { label:"SOCIAL",        color:"#BA7517" },
+  personal:      { label:"PERSONAL",      color:"#1D9E75" }
+};
+
+// ── CORE: get raw ecliptic longitude ──
+function getLongitude(key, date) {
+  const t   = Astronomy.MakeTime(date);
+  const vec = Astronomy.GeoVector(key, t, true);
+  const ecl = Astronomy.Ecliptic(vec);
+  let lon   = ecl.elon % 360;
+  if (lon < 0) lon += 360;
+  return lon;
+}
+
+// ── IMPROVED RETROGRADE: ±1h centered difference ──
+// More accurate near station points than the previous 24h backward method.
+// Remaining uncertainty: ~±1 day around exact station date.
+function isRetrograde(key, date) {
+  if (key === 'Sun' || key === 'Moon') return false;
+  try {
+    const dt   = 3600000; // 1 hour in ms
+    const lon1 = getLongitude(key, new Date(date.getTime() - dt));
+    const lon2 = getLongitude(key, new Date(date.getTime() + dt));
+    let delta  = lon2 - lon1;
+    if (delta >  180) delta -= 360;
+    if (delta < -180) delta += 360;
+    return delta < 0;
+  } catch(e) { return false; }
+}
+
+// ── MAIN CALC ──
+function calcPositions(date) {
+  const t = Astronomy.MakeTime(date);
+  return PLANETS.map(p => {
+    try {
+      const vec = Astronomy.GeoVector(p.key, t, true);
+      const ecl = Astronomy.Ecliptic(vec);
+      let lon   = ecl.elon % 360;
+      if (lon < 0) lon += 360;
+      const c    = getConstellation(lon);
+      const next = getNextConstellation(c);
+      const localDeg = c.name === "Pisces"
+        ? (lon >= 348.7 ? lon - 348.7 : lon + (360 - 348.7))
+        : lon - c.start;
+      const retro = isRetrograde(p.key, date);
+      return { ...p, constellation:c, nextConst:next,
+               degree:localDeg.toFixed(1), pct:getProgress(lon,c), retro };
+    } catch(e) { return { ...p, error: e.message }; }
+  });
+}
+
+// ── NEXT-SIGN ENTRY SEARCH ──
+// Adaptive step sizes based on mean planet speed (days per degree).
+// Binary search refines to ±15 min after 28 bisections.
+const PLANET_STEP_DAYS = {
+  Moon:0.4, Mercury:0.9, Venus:1.5, Sun:1.8,
+  Mars:4, Jupiter:18, Saturn:35, Uranus:100, Neptune:170, Pluto:250
+};
+
+function findNextSignEntry(key, fromDate, currentSignName) {
+  const stepMs  = (PLANET_STEP_DAYS[key] || 5) * 86400000;
+  const maxSteps = Math.ceil(365 * 22 * 86400000 / stepMs); // max 22 years
+
+  let prevSign = currentSignName;
+  let prevMs   = 0;
+
+  for (let i = 1; i <= maxSteps; i++) {
+    const ms       = i * stepMs;
+    const testDate = new Date(fromDate.getTime() + ms);
+    try {
+      const lon  = getLongitude(key, testDate);
+      const sign = getConstellation(lon).name;
+      if (sign !== prevSign) {
+        // Bisect bracket [prevMs, ms] to 28 iterations ≈ ±15 min
+        let lo = prevMs, hi = ms;
+        for (let b = 0; b < 28; b++) {
+          const mid     = (lo + hi) / 2;
+          const midSign = getConstellation(getLongitude(key, new Date(fromDate.getTime() + mid))).name;
+          if (midSign === prevSign) lo = mid; else hi = mid;
+        }
+        return new Date(fromDate.getTime() + (lo + hi) / 2);
+      }
+      prevSign = sign;
+      prevMs   = ms;
+    } catch(e) { break; }
+  }
+  return null;
+}
+
+// ── FORMAT NEXT-ENTRY DATE ──
+// Adaptive: Moon → relative hours; fast planets → day+month; slow → year
+function formatNextEntry(entryDate, key) {
+  if (!entryDate) return null;
+  const diffMs   = entryDate - new Date();
+  const diffDays = diffMs / 86400000;
+  if (diffDays < 0) return null;
+
+  const MOS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+  if (key === 'Moon') {
+    const d = Math.floor(diffDays);
+    const h = Math.floor((diffDays - d) * 24);
+    return d === 0 ? `en ${h}h` : `en ${d}d ${h}h`;
+  }
+  if (diffDays < 90) {
+    return `${entryDate.getDate()} ${MOS[entryDate.getMonth()]}`;
+  }
+  if (diffDays < 365 * 4) {
+    return `${MOS[entryDate.getMonth()]} ${entryDate.getFullYear()}`;
+  }
+  return `${entryDate.getFullYear()}`;
+}
+
+// ── ASYNC PROGRESSIVE NEXT-ENTRY COMPUTATION ──
+// Runs after initial render so the diorama appears instantly.
+// Yields to the event loop between planets to keep UI responsive.
+async function computeNextEntries(data, fromDate) {
+  for (const p of data) {
+    if (p.error) continue;
+    await new Promise(r => setTimeout(r, 0)); // yield
+    try {
+      const entryDate = findNextSignEntry(p.key, fromDate, p.constellation.name);
+      const label     = formatNextEntry(entryDate, p.key);
+      const el        = document.getElementById(`next-${p.key}`);
+      if (el && label) el.textContent = `→ ${label}`;
+      else if (el)     el.textContent = '';
+    } catch(e) { /* silent */ }
+  }
+}
+
+// ── RENDER ──
+function arcSVG() {
+  return `<svg class="arc" viewBox="0 0 380 11"><path d="M0,10 Q190,1 380,10" stroke="#e8e4dc" stroke-width="0.7" fill="none"/></svg>`;
+}
+
+function render(data) {
+  let html     = "";
+  let lastCat  = null;
+
+  data.forEach((p, i) => {
+    if (p.error) return;
+    const meta        = CAT_META[p.cat];
+    const isApprox    = state.isApproximate && FAST.has(p.name);
+    const retroClass  = p.retro ? ' is-retro' : '';
+
+    if (p.cat !== lastCat) {
+      html += `<div class="cat"><span class="cat-dot" style="background:${meta.color}"></span>${meta.label}</div>`;
+      lastCat = p.cat;
+    }
+
+    const ac         = isApprox ? ' approx' : '';
+    const retroBadge = p.retro ? `<span class="retro-badge">℞ retrógrado</span>` : '';
+
+    html += `
+      <div class="row${retroClass}">
+        <div class="sign${ac}">
+          <span class="s-sym">${p.constellation.sym}</span>
+          <span class="s-name">${p.constellation.short}</span>
+        </div>
+        <div class="planet">
+          <span class="p-sym cat-${p.cat}">${p.sym}</span>
+          <span class="p-name">${p.name}</span>
+          ${retroBadge}
+          <span class="p-deg">~${p.degree}°</span>
+          <div class="prog-wrap"><div class="prog" style="width:${p.pct.toFixed(0)}%;background:${meta.color}"></div></div>
+        </div>
+        <div class="sign r${ac}">
+          <span class="s-sym">${p.nextConst.sym}</span>
+          <span class="s-name">${p.nextConst.short}</span>
+          <span class="s-entry" id="next-${p.key}">·  ·  ·</span>
+        </div>
+      </div>
+      ${isApprox ? '<div class="approx-note">posición aproximada · hora no ingresada</div>' : ''}
+    `;
+    if (i < data.length - 1) html += arcSVG();
+  });
+
+  document.getElementById('diorama').innerHTML = html;
+}
+
+function refresh() {
+  const date = state.mode === 'live' ? new Date() : state.targetDate;
+  try {
+    const data = calcPositions(date);
+    render(data);
+    computeNextEntries(data, date); // async, non-blocking
+  } catch(e) {
+    document.getElementById('diorama').innerHTML =
+      `<div class="msg" style="color:#c0392b">ERROR: ${e.message}</div>`;
+  }
+}
+
+// ── MODAL ──
+function openModal() {
+  if (state.mode === 'custom' && state.targetDate) {
+    const d = state.targetDate;
+    document.getElementById('input-date').value =
+      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  } else {
+    const now = new Date();
+    document.getElementById('input-date').value =
+      `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('input-time').value = '';
+  }
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal()       { document.getElementById('modal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+function applyDate() {
+  const dateStr = document.getElementById('input-date').value;
+  const timeStr = document.getElementById('input-time').value;
+  if (!dateStr) { alert('Ingresa una fecha.'); return; }
+  const [y, mo, d] = dateStr.split('-').map(Number);
+  let targetDate;
+  if (timeStr) {
+    const [h, mi]  = timeStr.split(':').map(Number);
+    targetDate     = new Date(y, mo-1, d, h, mi, 0);
+    state.isApproximate = false;
+  } else {
+    targetDate     = new Date(Date.UTC(y, mo-1, d, 12, 0, 0));
+    state.isApproximate = true;
+  }
+  state.mode = 'custom'; state.targetDate = targetDate;
+  const MOS  = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const label = `${d} ${MOS[mo-1]} ${y}${timeStr ? ' · '+timeStr : ' · aprox.'}`;
+  document.getElementById('top-context').textContent = `📅 ${label}`;
+  document.getElementById('btn-date').className = 'btn-date custom';
+  closeModal(); refresh();
+}
+
+function resetToLive() {
+  state.mode = 'live'; state.targetDate = null; state.isApproximate = false;
+  document.getElementById('top-context').textContent = '⟳ tiempo real · ahora';
+  document.getElementById('btn-date').className = 'btn-date live';
+  closeModal(); refresh();
+}
+
+// ── DARK MODE ──
+function applyDarkMode(dark) {
+  document.documentElement.classList.toggle('dark', dark);
+  document.getElementById('btn-dark').textContent = dark ? '☀︎' : '◑';
+  try { localStorage.setItem('ts-dark', dark ? '1' : '0'); } catch(e){}
+}
+function toggleDark() {
+  darkMode = !darkMode;
+  applyDarkMode(darkMode);
+}
+
+// ── CLOCK ──
+function pad(n) { return String(n).padStart(2,'0'); }
+function updateClock() {
+  const now    = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('bar-time').textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('bar-date').textContent =
+    `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  const off = -now.getTimezoneOffset();
+  const tz  = (off>=0?'+':'-') + pad(Math.floor(Math.abs(off)/60)) + ':' + pad(Math.abs(off)%60);
+  document.getElementById('bar-tz').textContent = `UTC ${tz}`;
+}
+
+// ── CAPTURE & SHARE (unchanged) ──
+function showToast(msg, duration=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function captureAndShare() {
+  const btn = document.getElementById('btn-share');
+  btn.classList.add('loading');
+  btn.querySelector('.btn-icon').textContent = '⏳';
+  const stickyTop = document.querySelector('.sticky-top');
+  const stickyBot = document.querySelector('.sticky-bar');
+  stickyTop.style.display = 'none';
+  stickyBot.style.display = 'none';
+  document.body.style.paddingTop = '0';
+  const target = document.querySelector('.card');
+  html2canvas(target, { backgroundColor: darkMode ? '#17171b' : '#ffffff', scale:3, useCORS:true, logging:false })
+    .then(canvas => {
+      stickyTop.style.display = ''; stickyBot.style.display = '';
+      document.body.style.paddingTop = '';
+      btn.classList.remove('loading');
+      btn.querySelector('.btn-icon').textContent = '⬇︎';
+      const now   = new Date();
+      const fname = `true-spaces-${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}.png`;
+      canvas.toBlob(blob => {
+        if (navigator.share && navigator.canShare) {
+          const file = new File([blob], fname, { type:'image/png' });
+          if (navigator.canShare({ files:[file] })) {
+            navigator.share({ title:'True Spaces · Posiciones Planetarias', files:[file] })
+              .then(() => showToast('✓ compartido'))
+              .catch(() => fallbackDownload(canvas, fname));
+            return;
+          }
+        }
+        fallbackDownload(canvas, fname);
+      }, 'image/png');
+    })
+    .catch(err => {
+      stickyTop.style.display = ''; stickyBot.style.display = '';
+      document.body.style.paddingTop = '';
+      btn.classList.remove('loading');
+      btn.querySelector('.btn-icon').textContent = '⬇︎';
+      showToast('✗ error al generar imagen');
+    });
+}
+
+function fallbackDownload(canvas, fname) {
+  const link    = document.createElement('a');
+  link.download = fname;
+  link.href     = canvas.toDataURL('image/png');
+  link.click();
+  showToast('✓ imagen descargada');
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  applyDarkMode(darkMode);
+  refresh();
+  updateClock();
+  setInterval(updateClock, 1000);
+  setInterval(() => { if (state.mode === 'live') refresh(); }, 300000);
+});
 
 const IAU = [
   { name:"Aries",       short:"Aries",    sym:"♈", start:29.0,  end:53.5  },
@@ -573,7 +1259,32 @@ const CAT_META = {
   personal:      { label:"PERSONAL",      color:"#1D9E75" }
 };
 
-// ── CALC ──
+// ── CALC with retrograde detection ──
+function getLongitude(key, date) {
+  const t   = Astronomy.MakeTime(date);
+  const vec = Astronomy.GeoVector(key, t, true);
+  const ecl = Astronomy.Ecliptic(vec);
+  let lon   = ecl.elon % 360;
+  if (lon < 0) lon += 360;
+  return lon;
+}
+
+function isRetrograde(key, date) {
+  // Sun & Moon never retrograde
+  if (key === 'Sun' || key === 'Moon') return false;
+  // Compare longitude now vs 1 day ago
+  try {
+    const past = new Date(date.getTime() - 86400000);
+    const lon1 = getLongitude(key, past);
+    const lon2 = getLongitude(key, date);
+    // handle wrap-around at 0°/360°
+    let delta = lon2 - lon1;
+    if (delta >  180) delta -= 360;
+    if (delta < -180) delta += 360;
+    return delta < 0;
+  } catch(e) { return false; }
+}
+
 function calcPositions(date) {
   const t = Astronomy.MakeTime(date);
   return PLANETS.map(p => {
@@ -587,12 +1298,14 @@ function calcPositions(date) {
       const localDeg = c.name === "Pisces"
         ? (lon >= 348.7 ? lon - 348.7 : lon + (360 - 348.7))
         : lon - c.start;
-      return { ...p, constellation:c, nextConst:next, degree:localDeg.toFixed(1), pct:getProgress(lon,c) };
+      const retro = isRetrograde(p.key, date);
+      return { ...p, constellation:c, nextConst:next,
+               degree:localDeg.toFixed(1), pct:getProgress(lon,c), retro };
     } catch(e) { return { ...p, error: e.message }; }
   });
 }
 
-// ── RENDER ──
+// ── RENDER with colors + retrograde ──
 function arcSVG() {
   return `<svg class="arc" viewBox="0 0 380 11"><path d="M0,10 Q190,1 380,10" stroke="#e8e4dc" stroke-width="0.7" fill="none"/></svg>`;
 }
@@ -602,22 +1315,32 @@ function render(data) {
   let lastCat = null;
   data.forEach((p, i) => {
     if (p.error) return;
-    const meta = CAT_META[p.cat];
+    const meta    = CAT_META[p.cat];
     const isApprox = state.isApproximate && FAST.has(p.name);
+    const retroClass = p.retro ? ' is-retro' : '';
+
     if (p.cat !== lastCat) {
       html += `<div class="cat"><span class="cat-dot" style="background:${meta.color}"></span>${meta.label}</div>`;
       lastCat = p.cat;
     }
+
     const ac = isApprox ? ' approx' : '';
+
+    // Retrograde badge — show only if actually retrograde
+    const retroBadge = p.retro
+      ? `<span class="retro-badge">℞ retrógrado</span>`
+      : '';
+
     html += `
-      <div class="row">
+      <div class="row${retroClass}">
         <div class="sign${ac}">
           <span class="s-sym">${p.constellation.sym}</span>
           <span class="s-name">${p.constellation.short}</span>
         </div>
         <div class="planet">
-          <span class="p-sym">${p.sym}</span>
+          <span class="p-sym cat-${p.cat}">${p.sym}</span>
           <span class="p-name">${p.name}</span>
+          ${retroBadge}
           <span class="p-deg">~${p.degree}°</span>
           <div class="prog-wrap"><div class="prog" style="width:${p.pct.toFixed(0)}%;background:${meta.color}"></div></div>
         </div>
@@ -631,6 +1354,80 @@ function render(data) {
     if (i < data.length - 1) html += arcSVG();
   });
   document.getElementById('diorama').innerHTML = html;
+}
+
+// ── CAPTURE & SHARE ──
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function captureAndShare() {
+  const btn = document.getElementById('btn-share');
+  btn.classList.add('loading');
+  btn.querySelector('.btn-icon').textContent = '⏳';
+
+  // Temporarily hide sticky bars for a clean screenshot
+  const stickyTop = document.querySelector('.sticky-top');
+  const stickyBot = document.querySelector('.sticky-bar');
+  stickyTop.style.display = 'none';
+  stickyBot.style.display = 'none';
+  document.body.style.paddingTop = '0';
+
+  const target = document.querySelector('.card');
+
+  html2canvas(target, {
+    backgroundColor: '#ffffff',
+    scale: 3,              // crisp on Retina
+    useCORS: true,
+    logging: false
+  }).then(canvas => {
+    // Restore UI
+    stickyTop.style.display = '';
+    stickyBot.style.display = '';
+    document.body.style.paddingTop = '';
+    btn.classList.remove('loading');
+    btn.querySelector('.btn-icon').textContent = '⬇︎';
+
+    // Try native Web Share API first (mobile share sheet)
+    canvas.toBlob(blob => {
+      const now  = new Date();
+      const fname = `true-spaces-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.png`;
+
+      if (navigator.share && navigator.canShare) {
+        const file = new File([blob], fname, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          navigator.share({
+            title: 'True Spaces · Posiciones Planetarias',
+            files: [file]
+          }).then(() => showToast('✓ compartido'))
+            .catch(() => fallbackDownload(canvas, fname));
+          return;
+        }
+      }
+      // Fallback: download
+      fallbackDownload(canvas, fname);
+    }, 'image/png');
+
+  }).catch(err => {
+    stickyTop.style.display = '';
+    stickyBot.style.display = '';
+    document.body.style.paddingTop = '';
+    btn.classList.remove('loading');
+    btn.querySelector('.btn-icon').textContent = '⬇︎';
+    showToast('✗ error al generar imagen');
+    console.error(err);
+  });
+}
+
+function fallbackDownload(canvas, fname) {
+  const link  = document.createElement('a');
+  link.download = fname;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('✓ imagen descargada');
 }
 
 function refresh() {
